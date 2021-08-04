@@ -5,7 +5,7 @@ exports[`ModuleIdentityDetailHeader matches snapshot 1`] = `
   className="module-pivot"
   horizontal={true}
 >
-  <StyledPivot
+  <StyledPivotBase
     aria-label="digitalTwin.pivot.ariaLabel"
     onLinkClick={[Function]}
     selectedKey="moduleDetail"
@@ -31,10 +31,15 @@ exports[`ModuleIdentityDetailHeader matches snapshot 1`] = `
       key="moduleEvents"
     />
     <PivotItem
+      headerText="breadcrumb.deviceVTInfo"
+      itemKey="deviceVTInfo"
+      key="deviceVTInfo"
+    />
+    <PivotItem
       headerText="breadcrumb.modulePnp"
       itemKey="modulePnp"
       key="modulePnp"
     />
-  </StyledPivot>
+  </StyledPivotBase>
 </Stack>
 `;

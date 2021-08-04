@@ -70,7 +70,7 @@
   "homepage": "https://github.com/Azure/azure-iot-explorer#readme",
   "dependencies": {
     "@azure/event-hubs": "1.0.7",
-    "@fluentui/react": "8.20.2",
+    "@fluentui/react": "^8.26.2",
     "azure-iot-common": "1.10.3",
     "azure-iothub": "1.8.1",
     "body-parser": "1.18.3",
@@ -83,6 +83,7 @@
     "immutable": "4.0.0-rc.12",
     "jsonschema": "1.2.4",
     "msal": "1.2.0",
+    "office-ui-fabric-react": "^7.174.0",
     "react": "16.14.0",
     "react-collapsible": "2.3.2",
     "react-dom": "16.13.1",

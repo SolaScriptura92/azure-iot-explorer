@@ -23,6 +23,7 @@ export enum ROUTE_PARTS {
     MODULE_PNP = 'modulePnp',
     MODULE_TWIN = 'moduleTwin',
     MODULE_EVENTS = 'moduleEvents',
+    DEVICE_VT_INFO = 'deviceVTInfo',
     PROPERTIES = 'properties',
     SETTINGS = 'settings',
     TWIN = 'twin',

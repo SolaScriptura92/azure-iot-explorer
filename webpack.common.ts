@@ -16,7 +16,7 @@ const config: webpack.Configuration = {
                 loader: 'tslint-loader',
                 options: {
                     emitErrors: true,
-                    failOnHint: true
+                    failOnHint: false
                 },
                 test: /\.tsx?$/
 

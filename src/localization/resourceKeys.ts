@@ -13,6 +13,7 @@ export class ResourceKeys {
       addModuleIdentity : "breadcrumb.addModuleIdentity",
       cloudToDeviceMessage : "breadcrumb.cloudToDeviceMessage",
       commands : "breadcrumb.commands",
+      deviceVTInfo : "breadcrumb.deviceVTInfo",
       devices : "breadcrumb.devices",
       events : "breadcrumb.events",
       eventsPerInterface : "breadcrumb.eventsPerInterface",

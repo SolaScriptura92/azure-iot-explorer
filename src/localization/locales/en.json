@@ -119,6 +119,7 @@
         "addModuleIdentity": "Add module identity",
         "modulePnp": "IoT Plug and Play components",
         "moduleEvents": "Telemetry",
+        "deviceVTInfo": "Verified Telemetry",
         "notificationCenter": "Notification Center"
     },
     "deviceContent": {

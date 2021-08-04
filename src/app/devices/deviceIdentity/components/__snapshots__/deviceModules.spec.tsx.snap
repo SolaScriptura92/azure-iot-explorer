@@ -63,6 +63,15 @@ exports[`DeviceModules matches snapshot 1`] = `
     }
     path="/moduleEvents"
   >
+  <Component
+    breadcrumb={
+      Object {
+        "name": "mod1",
+        "suffix": "?moduleId=mod1",
+      }
+    }
+    path="/deviceVTInfo"
+  >
     <Component />
   </Component>
   <Component
