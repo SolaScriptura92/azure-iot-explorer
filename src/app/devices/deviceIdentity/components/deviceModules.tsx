@@ -67,6 +67,12 @@
              />
 
              <BreadcrumbRoute
+                 path={`${url}/${ROUTE_PARTS.SENSOR_VT_INFO}`}
+                 breadcrumb={{name: moduleId, suffix: search}}
+                 children={<DeviceEvents/>}
+             />
+
+             <BreadcrumbRoute
                  path={`${url}/${ROUTE_PARTS.MODULE_PNP}`}
                  breadcrumb={{name: moduleId, disableLink: true, suffix: search}}
                  children={<Pnp/>}

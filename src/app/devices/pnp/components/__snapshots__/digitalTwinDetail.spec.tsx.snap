@@ -41,6 +41,11 @@ exports[`DigitalTwinDetail matches snapshot 1`] = `
         itemKey="deviceVTInfo"
         key="deviceVTInfo"
       />
+      <PivotItem
+        headerText="breadcrumb.sensorVTInfo"
+        itemKey="sensorVTInfo"
+        key="sensorVTInfo"
+      />
     </StyledPivotBase>
   </Stack>
   <Component
@@ -66,6 +71,10 @@ exports[`DigitalTwinDetail matches snapshot 1`] = `
   <Component
     component={[Function]}
     path="/#/devices/deviceDetail/ioTPlugAndPlay/?id=device1&componentName=foo&interfaceId=urn:iotInterfaces:com:interface1;1/deviceVTInfo/"
+  />
+  <Component
+    component={[Function]}
+    path="/#/devices/deviceDetail/ioTPlugAndPlay/?id=device1&componentName=foo&interfaceId=urn:iotInterfaces:com:interface1;1/sensorVTInfo/"
   />
 </Fragment>
 `;

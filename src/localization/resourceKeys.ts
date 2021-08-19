@@ -31,6 +31,7 @@ export class ResourceKeys {
       properties : "breadcrumb.properties",
       repos : "breadcrumb.repos",
       resources : "breadcrumb.resources",
+      sensorVTInfo : "breadcrumb.sensorVTInfo",
       settings : "breadcrumb.settings",
       twin : "breadcrumb.twin",
    };

@@ -120,6 +120,7 @@
         "modulePnp": "IoT Plug and Play components",
         "moduleEvents": "Telemetry",
         "deviceVTInfo": "Verified Telemetry",
+        "sensorVTInfo": "Sensor Telemetry",
         "notificationCenter": "Notification Center"
     },
     "deviceContent": {

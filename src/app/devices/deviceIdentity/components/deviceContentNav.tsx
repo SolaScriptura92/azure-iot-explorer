@@ -5,7 +5,7 @@
  import * as React from 'react';
  import { useTranslation } from 'react-i18next';
  import { useLocation, useRouteMatch } from 'react-router-dom';
- import { Nav, INavLinkGroup, INavLink } from 'office-ui-fabric-react/lib/components/Nav';
+ import { Nav, INavLinkGroup, INavLink } from '@fluentui/react';
  import { ResourceKeys } from '../../../../localization/resourceKeys';
  import { ROUTE_PARTS, ROUTE_PARAMS } from '../../../constants/routes';
  import { NAVIGATE_BACK } from '../../../constants/iconNames';
@@ -14,7 +14,7 @@
 
  export const NAV_LINK_ITEMS_DEVICE = [ROUTE_PARTS.IDENTITY, ROUTE_PARTS.TWIN, ROUTE_PARTS.EVENTS, ROUTE_PARTS.METHODS, ROUTE_PARTS.CLOUD_TO_DEVICE_MESSAGE, ROUTE_PARTS.MODULE_IDENTITY];
  export const NAV_LINK_ITEMS_NONEDGE_DEVICE = [...NAV_LINK_ITEMS_DEVICE, ROUTE_PARTS.DIGITAL_TWINS];
- export const NAV_LINK_ITEMS_MODULE = [ROUTE_PARTS.MODULE_DETAIL, ROUTE_PARTS.MODULE_TWIN, ROUTE_PARTS.MODULE_METHOD, ROUTE_PARTS.MODULE_EVENTS, ROUTE_PARTS.DEVICE_VT_INFO, ROUTE_PARTS.MODULE_PNP];
+ export const NAV_LINK_ITEMS_MODULE = [ROUTE_PARTS.MODULE_DETAIL, ROUTE_PARTS.MODULE_TWIN, ROUTE_PARTS.MODULE_METHOD, ROUTE_PARTS.MODULE_EVENTS, ROUTE_PARTS.DEVICE_VT_INFO, ROUTE_PARTS.SENSOR_VT_INFO, ROUTE_PARTS.MODULE_PNP];
  // tslint:disable-next-line: no-any
  const navIcons = {} as any;
  navIcons[ROUTE_PARTS.IDENTITY] = 'Server';
@@ -29,6 +29,7 @@
  navIcons[ROUTE_PARTS.MODULE_METHOD] = 'Remote';
  navIcons[ROUTE_PARTS.MODULE_EVENTS] = 'Message';
  navIcons[ROUTE_PARTS.DEVICE_VT_INFO] = 'Message';
+ navIcons[ROUTE_PARTS.SENSOR_VT_INFO] = 'Message';
  navIcons[ROUTE_PARTS.MODULE_PNP] = 'PlugDisconnected';
 
  export interface DeviceContentNavProps {

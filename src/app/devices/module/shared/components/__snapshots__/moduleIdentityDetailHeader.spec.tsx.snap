@@ -36,6 +36,11 @@ exports[`ModuleIdentityDetailHeader matches snapshot 1`] = `
       key="deviceVTInfo"
     />
     <PivotItem
+      headerText="breadcrumb.sensorVTInfo"
+      itemKey="sensorVTInfo"
+      key="sensorVTInfo"
+    />
+    <PivotItem
       headerText="breadcrumb.modulePnp"
       itemKey="modulePnp"
       key="modulePnp"

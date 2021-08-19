@@ -5,13 +5,12 @@
  import * as React from 'react';
  import { useTranslation } from 'react-i18next';
  import { useLocation, Route, useRouteMatch, useHistory } from 'react-router-dom';
- import { Stack } from 'office-ui-fabric-react/lib/components/Stack';
- import { Pivot, PivotItem } from 'office-ui-fabric-react/lib/components/Pivot';
+ import { Stack, Pivot, PivotItem } from '@fluentui/react';
  import { ROUTE_PARTS, ROUTE_PARAMS } from '../../../constants/routes';
  import { ResourceKeys } from '../../../../localization/resourceKeys';
  import { DeviceSettings } from './deviceSettings/deviceSettings';
  import { DeviceProperties } from './deviceProperties/deviceProperties';
- import { DeviceCommands, DeviceCommandsVT } from './deviceCommands/deviceCommands';
+ import { DeviceCommands, DeviceCommandsVT, SensorVT } from './deviceCommands/deviceCommands';
  import { DeviceInterfaces } from './deviceInterfaces/deviceInterfaces';
  import { DeviceEvents } from '../../deviceEvents/components/deviceEvents';
  import { getDeviceIdFromQueryString, getInterfaceIdFromQueryString, getComponentNameFromQueryString, getModuleIdentityIdFromQueryString } from '../../../shared/utils/queryStringHelper';
@@ -28,7 +27,15 @@
      const moduleId = getModuleIdentityIdFromQueryString(search);
      const interfaceId = getInterfaceIdFromQueryString(search);
      const componentName = getComponentNameFromQueryString(search);
-     const NAV_LINK_ITEMS_PNP = [ROUTE_PARTS.INTERFACES, ROUTE_PARTS.PROPERTIES, ROUTE_PARTS.SETTINGS, ROUTE_PARTS.COMMANDS, ROUTE_PARTS.EVENTS, ROUTE_PARTS.DEVICE_VT_INFO];
+     let NAV_LINK_ITEMS_PNP = [ROUTE_PARTS.INTERFACES, ROUTE_PARTS.PROPERTIES, ROUTE_PARTS.SETTINGS, ROUTE_PARTS.COMMANDS, ROUTE_PARTS.EVENTS];
+
+     if (interfaceId.includes('verifiedtelemetry:telemetryinformation')) {
+        NAV_LINK_ITEMS_PNP = [ROUTE_PARTS.INTERFACES, ROUTE_PARTS.PROPERTIES, ROUTE_PARTS.SETTINGS, ROUTE_PARTS.COMMANDS, ROUTE_PARTS.EVENTS, ROUTE_PARTS.SENSOR_VT_INFO];
+     }
+
+     if (interfaceId.includes('verifiedtelemetry:deviceinformation')) {
+        NAV_LINK_ITEMS_PNP = [ROUTE_PARTS.INTERFACES, ROUTE_PARTS.PROPERTIES, ROUTE_PARTS.SETTINGS, ROUTE_PARTS.COMMANDS, ROUTE_PARTS.EVENTS, ROUTE_PARTS.DEVICE_VT_INFO];
+     }
 
      React.useEffect(() => {
          getModelDefinition();
@@ -72,6 +79,7 @@
              <Route path={`${url}/${ROUTE_PARTS.INTERFACES}/`} component={DeviceInterfaces}/>
              <Route path={`${url}/${ROUTE_PARTS.EVENTS}/`} component={DeviceEvents}/>
              <Route path={`${url}/${ROUTE_PARTS.DEVICE_VT_INFO}/`} component={DeviceCommandsVT}/>
+             <Route path={`${url}/${ROUTE_PARTS.SENSOR_VT_INFO}/`} component={SensorVT}/>
          </>
      );
  };

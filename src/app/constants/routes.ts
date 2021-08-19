@@ -24,6 +24,7 @@ export enum ROUTE_PARTS {
     MODULE_TWIN = 'moduleTwin',
     MODULE_EVENTS = 'moduleEvents',
     DEVICE_VT_INFO = 'deviceVTInfo',
+    SENSOR_VT_INFO = 'sensorVTInfo',
     PROPERTIES = 'properties',
     SETTINGS = 'settings',
     TWIN = 'twin',

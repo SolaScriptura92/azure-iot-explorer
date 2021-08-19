@@ -4,26 +4,19 @@
  **********************************************************/
  import * as React from 'react';
  import { Twin } from 'azure-iothub';
- import { ChoiceGroup, IChoiceGroupOption } from 'office-ui-fabric-react/lib/components/ChoiceGroup';
+ import { ChoiceGroup, mergeStyles, Text, MarqueeSelection, DetailsList, DetailsListLayoutMode, Selection, IColumn, IChoiceGroupOption, Checkbox, PrimaryButton, TextField, ITextFieldStyles, Announced, Label, CommandBar, ICommandBarItemProps } from '@fluentui/react';
  import { useLocation, useHistory, useRouteMatch, Route } from 'react-router-dom';
- import { Checkbox } from 'office-ui-fabric-react/lib/components/Checkbox';
- import { PrimaryButton } from 'office-ui-fabric-react/lib/components/Button';
- import { CommandBar, ICommandBarItemProps } from 'office-ui-fabric-react/lib/components/CommandBar';
- import { Label } from 'office-ui-fabric-react/lib/components/Label';
- import { Announced } from 'office-ui-fabric-react/lib/Announced';
- import { TextField, ITextFieldStyles } from 'office-ui-fabric-react/lib/TextField';
- import { DetailsList, DetailsListLayoutMode, Selection, IColumn } from 'office-ui-fabric-react/lib/DetailsList';
- import { MarqueeSelection } from 'office-ui-fabric-react/lib/MarqueeSelection';
- import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
- import { Text } from 'office-ui-fabric-react/lib/Text';
  import { render } from 'enzyme';
  import { useTranslation } from 'react-i18next';
+ import { DigitalTwinDetail } from '../digitalTwinDetail';
  import * as DevicesService from '../../../../api/services/devicesService';
  import { pnpReducer } from '../../reducer';
  import { pnpSaga } from '../../saga';
+ import { invokeDirectMethodSaga } from '../../../directMethod/saga';
  import { pnpStateInitial } from '../../state';
  import { getModelDefinitionAction, InvokeCommandActionParameters, invokeCommandAction, getDeviceTwinAction, updateDeviceTwinAction } from '../../actions';
  import { dispatchGetTwinAction, getBackUrl } from '../../utils';
+ import { ROUTE_PARTS, ROUTE_PARAMS } from '../../../../constants/routes';
  import { RepositoryLocationSettings } from '../../../../shared/global/state';
  import { useGlobalStateContext } from '../../../../shared/contexts/globalStateContext';
  import { getRepositoryLocationSettings } from '../../../../modelRepository/dataHelper';
@@ -53,21 +46,21 @@
 
  const textFieldStyles: Partial<ITextFieldStyles> = { root: { maxWidth: '300px' } };
 
- interface DetailsListBasicExampleItem {
+ interface DetailsListBasicItem {
    key: number;
    name: string;
    status: string;
    lastUpdate: string;
  }
 
- interface DetailsListBasicExampleState {
-   items: DetailsListBasicExampleItem[];
+ interface DetailsListBasicState {
+   items: DetailsListBasicItem[];
    selectionDetails: string;
  }
 
- class DetailsListBasicExample extends React.Component<{}, DetailsListBasicExampleState> {
+ class DetailsListBasic extends React.Component<{}, DetailsListBasicState> {
    private selection: Selection;
-   public allItems: DetailsListBasicExampleItem[] = [];
+   public allItems: DetailsListBasicItem[] = [];
    private columns: IColumn[];
 
    constructor(props: {}) {
@@ -91,7 +84,8 @@
 
    public render = () => {
      const { items, selectionDetails } = this.state;
-
+     // tslint:disable-next-line:no-console
+     console.log(selectionDetails);
      return (
        <div className="scrollable-lg">
          <div className={exampleChildClass}>{selectionDetails}</div>
@@ -121,7 +115,7 @@
        case 0:
          return 'No items selected';
        case 1:
-         return '1 item selected: ' + (this.selection.getSelection()[0] as DetailsListBasicExampleItem).name;
+         return '1 item selected: ' + (this.selection.getSelection()[0] as DetailsListBasicItem).name;
        default:
          return `${selectionCount} items selected`;
      }
@@ -132,9 +126,11 @@
        items: text ? this.allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1) : this.allItems,
      });
      }
-
-   private onItemInvoked = (item: DetailsListBasicExampleItem): void => {
+   // tslint:disable-next-line
+   private onItemInvoked = (item: DetailsListBasicItem): void => {
      alert(`Item invoked: ${item.name}`);
+     // tslint:disable-next-line:no-console
+     console.log('I was invoked');
    }
  }
 
@@ -219,14 +215,11 @@
 
    const onChange = (ev: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption) => {
      vTStatus = (vTStatus === 'enabled') ? 'disabled' : 'enabled';
+     // tslint:disable-next-line:no-console
      console.dir(option);
    };
    const ChoiceGroupBasicExample: React.FunctionComponent = () => {
      return <ChoiceGroup defaultSelectedKey="Enable" options={options} onChange={onChange} label="" required={true} />;
-   };
-     // The function below is hardcoded. You may delete it after device sample code is fixed to update deviceStatus
-   const getOverallStatus = (currentDevice: any) => {
-     return (currentDevice.vTsoilMoistureExternal1.telemetryStatus && currentDevice.vTsoilMoistureExternal2.telemetryStatus);
    };
 
    const { search, pathname } = useLocation();
@@ -243,11 +236,10 @@
    const interfaceIdModified = React.useMemo(() => interfaceId || moduleId, [moduleId, interfaceId]);
    const componentName = getComponentNameFromQueryString(search);
    const [ localState, dispatcher ] = useAsyncSagaReducer(deviceTwinReducer, deviceTwinSaga, deviceTwinStateInitial(), 'deviceTwinState');
-   let twin = localState.deviceTwin && localState.deviceTwin.payload as any;
-   let modelDefinition: any;
-   modelDefinition = pnpState.modelDefinitionWithSource.payload && pnpState.modelDefinitionWithSource.payload.modelDefinition;
-   let modelDefinitionWithSource: any;
-   modelDefinitionWithSource = pnpState.modelDefinitionWithSource.payload;
+   // tslint:disable-next-line: no-any
+   let twin = localState.deviceTwin && localState.deviceTwin.payload as any; // tslint:disable
+   let modelDefinition = pnpState.modelDefinitionWithSource.payload && pnpState.modelDefinitionWithSource.payload.modelDefinition as any;
+   let modelDefinitionWithSource = pnpState.modelDefinitionWithSource.payload as any;
    const twinState = localState.deviceTwin && localState.deviceTwin.synchronizationStatus;
    const [ autoGenerateKeys, setautoGenerateKeys ] = React.useState<boolean>(true);
    const [ pnpStatees, pnpDispatch ] = useAsyncSagaReducer(pnpReducer, pnpSaga, pnpStateInitial(), 'pnpState');
@@ -263,7 +255,7 @@
      }
    },              [interfaceIdModified, deviceId]);
 
-   const hello = new DetailsListBasicExample({});
+   const sensorList = new DetailsListBasic({});
 
    const telemetryLoading = () => {
      return (isLoading === SynchronizationStatus.working || isLoading === SynchronizationStatus.updating);
@@ -288,8 +280,7 @@
    };
 
    const isVtString = (name: string) => {
-     const substringEnd = 2;
-     return (name.substring(0, substringEnd) === 'vT');
+     return (name.substring(0, 2) === 'vT'); // tslint:disable-line:no-magic-numbers
    };
 
    const getStat = (currentTelemetryStatus: any) => {
@@ -307,23 +298,19 @@
    };
 
    const getArray = (detailObject: any) => {
-     let itemList: DetailsListBasicExampleItem[];
-     let deviceResponse: any;
-     deviceResponse = twin.properties.reported as any;
+     let itemList: DetailsListBasicItem[];
+     let deviceResponse = twin.properties.reported as any;
      deviceResponse = Object.keys(deviceResponse);
-     let devResponseObj: any;
-     devResponseObj = twin.properties.reported as any;
+     let devResponseObj = twin.properties.reported as any;
      itemList = itemList;
      let tempName: any;
-     const substringEnd = 2;
      const telemetryTypes = getTelemetries();
-     const timeStringEnd = 19;
      let i = 0;
 
      while (i < deviceResponse.length) {
        tempName = deviceResponse[i];
        const tempNameLength = tempName.length;
-       const possibleTelemetryName = tempName.substring(substringEnd, tempNameLength);
+       const possibleTelemetryName = tempName.substring(2, tempNameLength); // tslint:disable-line:no-magic-numbers
        let stat = getStat(devResponseObj[tempName].telemetryStatus);
 
        if (!isVtString(tempName) && telemetryTypes.includes(tempName)) {
@@ -332,12 +319,12 @@
 
        if (stat !== '') {
          let update = devResponseObj.$metadata[tempName].$lastUpdated;
-         update = update.substring(0, timeStringEnd);
+         update = update.substring(0, 19); // tslint:disable-line:no-magic-numbers
          detailObject.allItems.push({
            key: i,
            name: tempName,
            status: stat,
-           lastUpdate: update,
+           lastUpdate: update, // tslint:disable-line:object-literal-sort-keys
          });
        }
 
@@ -373,10 +360,11 @@
        }
 
        if (twinState === SynchronizationStatus.fetched) {
+
            const deviceTelemetryStatus = twin.properties.reported as any;
-           getArray(hello);
-           // change condition below to this when device sample branch is updated: deviceTelemetryStatus.vTDevice.deviceStatus === true
-           if (getOverallStatus(deviceTelemetryStatus)) {
+           getArray(sensorList);
+
+           if (deviceTelemetryStatus.vTDevice.deviceStatus === true) {
 
                return (
                    <div>
@@ -407,7 +395,7 @@
                        <br/>
                        <PrimaryButton onClick={handleClick} style={{marginLeft: '15px'}}>{'Send command'}</PrimaryButton>
                        <div className="scrollable-lg">
-                       {hello.render()}
+                       {sensorList.render()}
                        </div>
                      </div>
                );
@@ -442,7 +430,7 @@
                    <br/>
                    <PrimaryButton onClick={handleClick} style={{marginLeft: '15px'}}>{'Send command'}</PrimaryButton>
                    <div className="scrollable-lg">
-                   {hello.render()}
+                   {sensorList.render()}
                    </div>
                </div>
            );
@@ -452,3 +440,237 @@
    };
    return renderVTTabDisplay();
  };
+
+ export const SensorVT: React.FC = () => {
+
+  const { search, pathname } = useLocation();
+  const { pnpState, getModelDefinition } = usePnpStateContext();
+  const isLoading = pnpState.modelDefinitionWithSource.synchronizationStatus;
+  const history = useHistory();
+  const { t } = useTranslation();
+  const deviceId = getDeviceIdFromQueryString(search);
+  const interfaceId = getInterfaceIdFromQueryString(search);
+  const moduleId = getModuleIdentityIdFromQueryString(search);
+  const { globalState } = useGlobalStateContext();
+  const { modelRepositoryState } = globalState;
+  const locations: RepositoryLocationSettings[] = getRepositoryLocationSettings(modelRepositoryState);
+  const interfaceIdModified = React.useMemo(() => interfaceId || moduleId, [moduleId, interfaceId]);
+  const componentName = getComponentNameFromQueryString(search);
+  const [ localState, dispatcher ] = useAsyncSagaReducer(deviceTwinReducer, deviceTwinSaga, deviceTwinStateInitial(), 'deviceTwinState');
+  let twin = localState.deviceTwin && localState.deviceTwin.payload as any;
+  let modelDefinition = pnpState.modelDefinitionWithSource.payload && pnpState.modelDefinitionWithSource.payload.modelDefinition as any;
+  let modelDefinitionWithSource = pnpState.modelDefinitionWithSource.payload as any;
+  const twinState = localState.deviceTwin && localState.deviceTwin.synchronizationStatus;
+  const [ autoGenerateKeys, setautoGenerateKeys ] = React.useState<boolean>(true);
+  const [ pnpStatees, pnpDispatch ] = useAsyncSagaReducer(pnpReducer, pnpSaga, pnpStateInitial(), 'pnpState');
+  const getModelDefinition2 = () => pnpDispatch(getModelDefinitionAction.started({digitalTwinId: deviceId, interfaceId: interfaceIdModified, locations}));
+  const commandSchemas = React.useMemo(() => getDeviceCommandPairs(modelDefinition).commandSchemas, [modelDefinition]);
+  const [ state, setState ] = React.useState({
+    isDirty: false,
+    isTwinValid: true,
+    twin: JSON.stringify(twin, null, '\t')
+  });
+  React.useEffect(() => {
+    if (interfaceIdModified && deviceId) {
+      getModelDefinition2();
+    }
+  },              [interfaceIdModified, deviceId]);
+
+  const handleRefresh = () => {
+    dispatcher(getDeviceTwinAction.started(deviceId));
+    twin = localState.deviceTwin && localState.deviceTwin.payload;
+    renderSensorVTDisplay();
+  };
+
+  const [ , dispatch ] = useAsyncSagaReducer(() => undefined, invokeDirectMethodSaga, undefined);
+  const handleResetClick = () => { 
+    const invokeParameters = {
+      connectTimeoutInSeconds: 20,
+      methodName: componentName.toString() + '*setResetFingerprintTemplate',
+      payload: {foo: 'bar'},
+      deviceId: deviceId,
+      moduleId: moduleId,
+      responseTimeoutInSeconds: 20,
+      // @ts-ignore
+      responseSchema: undefined
+  };
+    dispatch(invokeCommandAction.started(invokeParameters));
+    return;
+   };
+
+   const handleRetrainClick = () => {
+    const invokeParameters = {
+      connectTimeoutInSeconds: 20,
+      methodName: componentName.toString() + '*retrainFingerprintTemplate',
+      payload: {foo: 'bar'},
+      deviceId: deviceId,
+      moduleId: moduleId,
+      responseTimeoutInSeconds: 20,
+      // @ts-ignore
+      responseSchema: undefined
+    };
+
+    dispatch(invokeCommandAction.started(invokeParameters));
+    return;
+   };
+
+  const getFingerPrintTemplate = (currentSensor: any) => {
+    const info = [] as any;
+    const currentSensorTemplate = (currentSensor[componentName].fingerprintTemplate);
+    let temp = '';
+
+    for (const key in currentSensorTemplate) {
+      if (currentSensor[key] !== '') {
+        temp = key.toString() + ': ' + currentSensorTemplate[key];
+        info.push(<div style={{ fontWeight: 375 }}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{temp}</div>);
+      }
+    }
+
+    return info;
+  };
+
+  const getConfidenceLevelSchema = () => {
+
+    let i = 0;
+    let enumVals = [];
+    while (i < modelDefinition.contents.length) {
+      if (modelDefinition.contents[i].name === 'fingerprintTemplateConfidenceMetric') {
+        enumVals = modelDefinition.contents[i].schema.enumValues;
+      }
+
+      i++;
+    }
+
+    return enumVals;
+  };
+
+  const getFingerprintConfidenceMetric = (currentSensor: any) => {
+    let confidenceLevel = '';
+    const confidenceValues = getConfidenceLevelSchema();
+    let i = 0;
+
+    while (i < confidenceValues.length) {
+      if (confidenceValues[i].enumValue === currentSensor[componentName].fingerprintTemplateConfidenceMetric) {
+        confidenceLevel = confidenceValues[i].name;
+      }
+
+      i++;
+    }
+
+    return (<div style={{ fontWeight: 375 }}>&nbsp;&nbsp;&nbsp;&nbsp;Confidence metric: {confidenceLevel}</div>);
+  };
+
+  const getLastUpdateInfo = () => {
+    const devResponseObj = twin.properties.reported as any;
+    let update = devResponseObj.$metadata[componentName].fingerprintTemplate.$lastUpdated;
+    update = update.substring(0, 19); // tslint:disable-line:no-magic-numbers
+    return (<div style={{ fontWeight: 375 }}>&nbsp;&nbsp;&nbsp;&nbsp;Fingerprint last updated: {update}</div>);
+  };
+
+  const handleClose = () => {
+    const path = pathname.replace(/\/ioTPlugAndPlayDetail.*/, ``);
+    history.push(getBackUrl(path, search));
+  };
+
+  useBreadcrumbEntry({name: 'twin'});
+
+  React.useEffect(() => {
+      dispatcher(getDeviceTwinAction.started(deviceId));
+  },              [deviceId]);
+
+  const renderSensorVTDisplay = () => {
+      if (twinState === SynchronizationStatus.working || twinState === SynchronizationStatus.updating) {
+          return <MultiLineShimmer className="device-detail"/>;
+      }
+
+      if (twinState === SynchronizationStatus.fetched) {
+
+          const currentSensor = twin.properties.reported as any;
+          if (currentSensor[componentName].telemetryStatus === true) {
+              return (
+                  <div>
+                      <CommandBar
+                          className="command"
+                          items={[
+                              {
+                                  ariaLabel: t(ResourceKeys.deviceCommands.command.refresh),
+                                  iconProps: {iconName: REFRESH},
+                                  key: REFRESH,
+                                  name: t(ResourceKeys.deviceCommands.command.refresh),
+                                  onClick: handleRefresh
+                              }
+                          ]}
+                          farItems={[
+                              {
+                                  ariaLabel: t(ResourceKeys.deviceCommands.command.close),
+                                  iconProps: {iconName: NAVIGATE_BACK},
+                                  key: NAVIGATE_BACK,
+                                  name: t(ResourceKeys.deviceCommands.command.close),
+                                  onClick: handleClose
+                              }
+                          ]}
+                      />
+                      <div style={{ fontWeight: 500 }}>&nbsp;&nbsp;&nbsp;&nbsp;Sensor status:  
+                        <span style={{ color: 'green', fontWeight: 500 }}> working <span/>
+                        </span>
+                        <div style={{display: "flex", justifyContent: "center"}}>
+                        <PrimaryButton onClick={() => handleResetClick()} style={{marginLeft: '15px'}}>{'Reset fingerprint'}</PrimaryButton>
+                        <br></br>
+                        <PrimaryButton onClick={() => handleRetrainClick()} style={{marginLeft: '15px'}}>{'Retrain fingerprint'}</PrimaryButton>
+                        </div>
+                      </div>
+                      <div style={{ fontWeight: 500 }}>&nbsp;&nbsp;&nbsp;&nbsp;Fingerprint Info:</div>
+                      <div style={{ fontWeight: 375 }}>&nbsp;&nbsp;&nbsp;&nbsp;Type: {currentSensor[componentName].fingerprintType}</div>
+                      {getFingerPrintTemplate(currentSensor)}
+                      {getFingerprintConfidenceMetric(currentSensor)}
+                      {getLastUpdateInfo()}
+                    </div>
+              );
+          }
+
+          return (
+              <div>
+                  <CommandBar
+                      className="command"
+                      items={[
+                          {
+                              ariaLabel: t(ResourceKeys.deviceCommands.command.refresh),
+                              iconProps: {iconName: REFRESH},
+                              key: REFRESH,
+                              name: t(ResourceKeys.deviceCommands.command.refresh),
+                              onClick: handleRefresh
+                          }
+                      ]}
+                      farItems={[
+                          {
+                              ariaLabel: t(ResourceKeys.deviceCommands.command.close),
+                              iconProps: {iconName: NAVIGATE_BACK},
+                              key: NAVIGATE_BACK,
+                              name: t(ResourceKeys.deviceCommands.command.close),
+                              onClick: handleClose
+                              }
+                          ]}
+                  />
+                      <div style={{ fontWeight: 500 }}>&nbsp;&nbsp;&nbsp;&nbsp;Sensor status:  
+                        <span style={{ color: 'red', fontWeight: 500 }}> faulty <span/>
+                        </span>
+                        <div style={{display: "flex", justifyContent: "center"}}>
+                        <PrimaryButton onClick={() => handleResetClick()} style={{marginLeft: '15px'}}>{'Reset Fingerprint'}</PrimaryButton>
+                        <br></br>
+                        <PrimaryButton onClick={()=> handleRetrainClick()} style={{marginLeft: '15px'}}>{'Retrain fingerprint'}</PrimaryButton>
+                        </div>
+                      </div>
+                      <div style={{ fontWeight: 500 }}>&nbsp;&nbsp;&nbsp;&nbsp;Fingerprint Info:</div>
+                  <div style={{ fontWeight: 360 }}>&nbsp;&nbsp;&nbsp;&nbsp;Type: {currentSensor[componentName].fingerprintType}</div>
+                  <div style={{ fontWeight: 360 }}>&nbsp;&nbsp;&nbsp;&nbsp;Fingerprint template:</div>
+                  {getFingerPrintTemplate(currentSensor)}
+                  {getFingerprintConfidenceMetric(currentSensor)}
+                  {getLastUpdateInfo()}
+              </div>
+          );
+      }
+
+      return null;
+  };
+  return renderSensorVTDisplay();
+};
