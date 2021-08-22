@@ -5,12 +5,15 @@
  import * as React from 'react';
  import { Twin } from 'azure-iothub';
  import { ChoiceGroup, mergeStyles, Text, MarqueeSelection, DetailsList, DetailsListLayoutMode, Selection, IColumn, IChoiceGroupOption, Checkbox, PrimaryButton, TextField, ITextFieldStyles, Announced, Label, CommandBar, ICommandBarItemProps } from '@fluentui/react';
- import { useLocation, useHistory, useRouteMatch, Route } from 'react-router-dom';
+ import { useLocation, useHistory, useRouteMatch, Route, NavLink } from 'react-router-dom';
  import { render } from 'enzyme';
  import { useTranslation } from 'react-i18next';
  import { DigitalTwinDetail } from '../digitalTwinDetail';
  import * as DevicesService from '../../../../api/services/devicesService';
  import { pnpReducer } from '../../reducer';
+ import { deviceListReducer } from '../../../deviceList/reducer';
+ import { deviceListSaga } from '../../../deviceList/saga';
+ import { deviceListStateInitial } from '../../../deviceList/state';
  import { pnpSaga } from '../../saga';
  import { invokeDirectMethodSaga } from '../../../directMethod/saga';
  import { pnpStateInitial } from '../../state';
@@ -50,6 +53,7 @@
    key: number;
    name: string;
    status: string;
+   interfaceID: string;
    lastUpdate: string;
  }
 
@@ -70,22 +74,65 @@
        onSelectionChanged: () => this.setState({ selectionDetails: this._getSelectionDetails() }),
      });
 
-     this.columns = [
-       { key: 'column1', name: 'Sensor name', fieldName: 'name', minWidth: 100, maxWidth: 200, isResizable: true },
-       { key: 'column2', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 200, isResizable: true },
-       { key: 'column3', name: 'Last update', fieldName: 'lastUpdate', minWidth: 100, maxWidth: 200, isResizable: true},
-     ];
-
      this.state = {
        items: this.allItems,
        selectionDetails: this._getSelectionDetails(),
      };
    }
 
+   public getColumns = (): IColumn[] => {
+    const { search, pathname } = useLocation();
+    return [
+      {
+          fieldName: 'name',
+          isResizable: true,
+          key: 'column1',
+          maxWidth: 200,
+          minWidth: 100,
+          name: 'Sensor name',
+          onRender: (item: DetailsListBasicItem, index: number, column: IColumn) => {
+              const deviceId = getDeviceIdFromQueryString(search);
+              const moduleId = getModuleIdentityIdFromQueryString(search);
+              const interfaceId = getInterfaceIdFromQueryString(search);
+              let path = pathname;
+              path = pathname.replace(/\/deviceVTInfo\/.*/, `/interfaces/?`);
+              const linkUrl = `${path}` +
+             `${ROUTE_PARAMS.DEVICE_ID}=${encodeURIComponent(deviceId)}` +
+             `&${ROUTE_PARAMS.COMPONENT_NAME}=${item.name}` +
+             `&${ROUTE_PARAMS.INTERFACE_ID}=${item.interfaceID}`;
+
+              return (
+                  <NavLink key={column.key} to={`${linkUrl}`}>
+                      {item.name}
+                  </NavLink>
+              );
+          }
+      },
+
+      {
+        fieldName: 'status',
+        isResizable: true,
+        key: 'column2',
+        maxWidth: 200,
+        minWidth: 100,
+        name: 'Status',
+      },
+
+      {
+        fieldName: 'lastUpdate',
+        isResizable: true,
+        key: 'column3',
+        maxWidth: 200,
+        minWidth: 100,
+        name: 'Last Update',
+      },
+
+    ];
+  }
+
    public render = () => {
      const { items, selectionDetails } = this.state;
-     // tslint:disable-next-line:no-console
-     console.log(selectionDetails);
+
      return (
        <div className="scrollable-lg">
          <div className={exampleChildClass}>{selectionDetails}</div>
@@ -93,7 +140,7 @@
            <DetailsList
              className="scrollable-lg"
              items={this.allItems}
-             columns={this.columns}
+             columns={this.getColumns()}
              setKey="set"
              layoutMode={DetailsListLayoutMode.justified}
              selection={this.selection}
@@ -101,7 +148,6 @@
              ariaLabelForSelectionColumn="Toggle selection"
              ariaLabelForSelectAllCheckbox="Toggle selection for all items"
              checkButtonAriaLabel="select row"
-             onItemInvoked={this.onItemInvoked}
            />
          </MarqueeSelection>
        </div>
@@ -126,12 +172,6 @@
        items: text ? this.allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1) : this.allItems,
      });
      }
-   // tslint:disable-next-line
-   private onItemInvoked = (item: DetailsListBasicItem): void => {
-     alert(`Item invoked: ${item.name}`);
-     // tslint:disable-next-line:no-console
-     console.log('I was invoked');
-   }
  }
 
  export const DeviceCommands: React.FC = () => {
@@ -255,8 +295,6 @@
      }
    },              [interfaceIdModified, deviceId]);
 
-   const sensorList = new DetailsListBasic({});
-
    const telemetryLoading = () => {
      return (isLoading === SynchronizationStatus.working || isLoading === SynchronizationStatus.updating);
    };
@@ -297,6 +335,16 @@
      return status;
    };
 
+   const getInterfaceId = (component: string) => {
+     let interfaceId = '';
+
+     if (component === 'vTDevice') {
+       return interfaceId;
+     }
+
+     return 'dtmi:azure:verifiedtelemetry:telemetryinformation;1';
+   };
+
    const getArray = (detailObject: any) => {
      let itemList: DetailsListBasicItem[];
      let deviceResponse = twin.properties.reported as any;
@@ -320,10 +368,13 @@
        if (stat !== '') {
          let update = devResponseObj.$metadata[tempName].$lastUpdated;
          update = update.substring(0, 19); // tslint:disable-line:no-magic-numbers
+         let tempInterfaceId = getInterfaceId(tempName);
+
          detailObject.allItems.push({
            key: i,
            name: tempName,
            status: stat,
+           interfaceID: tempInterfaceId,
            lastUpdate: update, // tslint:disable-line:object-literal-sort-keys
          });
        }
@@ -362,6 +413,7 @@
        if (twinState === SynchronizationStatus.fetched) {
 
            const deviceTelemetryStatus = twin.properties.reported as any;
+           const sensorList = new DetailsListBasic({});
            getArray(sensorList);
 
            if (deviceTelemetryStatus.vTDevice.deviceStatus === true) {
@@ -559,7 +611,6 @@
 
     return (<div style={{ fontWeight: 375 }}>&nbsp;&nbsp;&nbsp;&nbsp;Confidence metric: {confidenceLevel}</div>);
   };
-
   const getLastUpdateInfo = () => {
     const devResponseObj = twin.properties.reported as any;
     let update = devResponseObj.$metadata[componentName].fingerprintTemplate.$lastUpdated;
@@ -577,7 +628,6 @@
   React.useEffect(() => {
       dispatcher(getDeviceTwinAction.started(deviceId));
   },              [deviceId]);
-
   const renderSensorVTDisplay = () => {
       if (twinState === SynchronizationStatus.working || twinState === SynchronizationStatus.updating) {
           return <MultiLineShimmer className="device-detail"/>;
