@@ -53,13 +53,21 @@ export const Commands: React.FC<CommandsProps> = ({
     const deviceId = getDeviceIdFromQueryString(search);
 
     const createCommandBarItems = (): ICommandBarItemProps[] => {
+
         if (componentName) {
-            return [createStartMonitoringCommandItem(),
-                createPnpModeledEventsCommandItem(),
-                createSystemPropertiesCommandItem(),
-                createRefreshCommandItem(),
-                createClearCommandItem()
-            ];
+
+            if (componentName !== 'vTDevice' && componentName.substr(0, 2) === 'vT') { // tslint:disable-line:no-magic-numbers
+                return [createStartMonitoringCommandItem()
+                ];
+            }
+            else {
+                return [createStartMonitoringCommandItem(),
+                    createPnpModeledEventsCommandItem(),
+                    createSystemPropertiesCommandItem(),
+                    createRefreshCommandItem(),
+                    createClearCommandItem()
+                ];
+            }
         }
         else {
             return [createStartMonitoringCommandItem(),
@@ -199,6 +207,16 @@ export const Commands: React.FC<CommandsProps> = ({
     const onToggleSimulationPanel = () => {
         setShowSimulationPanel(!showSimulationPanel);
     };
+
+    const tempCommandItems = createCommandBarItems();
+
+    if (tempCommandItems.length === 1) {
+        return (
+            <CommandBar
+                items={createCommandBarItems()}
+            />
+        );
+    }
 
     return (
         <CommandBar

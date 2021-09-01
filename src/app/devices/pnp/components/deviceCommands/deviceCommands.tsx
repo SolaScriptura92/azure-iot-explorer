@@ -8,6 +8,7 @@
  import { useLocation, useHistory, useRouteMatch, Route, NavLink } from 'react-router-dom';
  import { render } from 'enzyme';
  import { useTranslation } from 'react-i18next';
+ import { DeviceEvents } from '../../../deviceEvents/components/deviceEvents';
  import { DigitalTwinDetail } from '../digitalTwinDetail';
  import * as DevicesService from '../../../../api/services/devicesService';
  import { pnpReducer } from '../../reducer';
@@ -628,6 +629,7 @@
   React.useEffect(() => {
       dispatcher(getDeviceTwinAction.started(deviceId));
   },              [deviceId]);
+
   const renderSensorVTDisplay = () => {
       if (twinState === SynchronizationStatus.working || twinState === SynchronizationStatus.updating) {
           return <MultiLineShimmer className="device-detail"/>;
@@ -669,8 +671,13 @@
                         <PrimaryButton onClick={() => handleRetrainClick()} style={{marginLeft: '15px'}}>{'Retrain fingerprint'}</PrimaryButton>
                         </div>
                       </div>
-                      <div style={{ fontWeight: 500 }}>&nbsp;&nbsp;&nbsp;&nbsp;Fingerprint Info:</div>
-                      <div style={{ fontWeight: 375 }}>&nbsp;&nbsp;&nbsp;&nbsp;Type: {currentSensor[componentName].fingerprintType}</div>
+                      <div style={{ fontWeight: 500 }}>
+                        <span style={{height: "150px", width: "80px;", display: "flex", justifyContent: "center"}}>
+                        <DeviceEvents/>
+                        </span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;Fingerprint Info:
+                      </div>
+                      <div style={{ fontWeight: 360 }}>&nbsp;&nbsp;&nbsp;&nbsp;Type: {currentSensor[componentName].fingerprintType}</div>
                       {getFingerPrintTemplate(currentSensor)}
                       {getFingerprintConfidenceMetric(currentSensor)}
                       {getLastUpdateInfo()}
@@ -706,11 +713,15 @@
                         </span>
                         <div style={{display: "flex", justifyContent: "center"}}>
                         <PrimaryButton onClick={() => handleResetClick()} style={{marginLeft: '15px'}}>{'Reset Fingerprint'}</PrimaryButton>
-                        <br></br>
                         <PrimaryButton onClick={()=> handleRetrainClick()} style={{marginLeft: '15px'}}>{'Retrain fingerprint'}</PrimaryButton>
                         </div>
                       </div>
-                      <div style={{ fontWeight: 500 }}>&nbsp;&nbsp;&nbsp;&nbsp;Fingerprint Info:</div>
+                      <div style={{ fontWeight: 500 }}> 
+                        <span style={{height: "150px", width: "80px;", display: "flex", justifyContent: "center"}}>
+                        <DeviceEvents/>
+                        </span>
+                        &nbsp;&nbsp;&nbsp;&nbsp;Fingerprint Info:
+                      </div>
                   <div style={{ fontWeight: 360 }}>&nbsp;&nbsp;&nbsp;&nbsp;Type: {currentSensor[componentName].fingerprintType}</div>
                   <div style={{ fontWeight: 360 }}>&nbsp;&nbsp;&nbsp;&nbsp;Fingerprint template:</div>
                   {getFingerPrintTemplate(currentSensor)}
