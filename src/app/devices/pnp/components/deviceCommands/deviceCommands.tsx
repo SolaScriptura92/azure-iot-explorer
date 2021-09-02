@@ -159,12 +159,8 @@
      const selectionCount = this.selection.getSelectedCount();
 
      switch (selectionCount) {
-       case 0:
-         return 'No items selected';
-       case 1:
-         return '1 item selected: ' + (this.selection.getSelection()[0] as DetailsListBasicItem).name;
        default:
-         return `${selectionCount} items selected`;
+         return '';
      }
    }
 
@@ -252,10 +248,7 @@
      { key: 'B', text: 'Disable' },
    ];
 
-   let vTStatus = 'enabled';
-
    const onChange = (ev: React.FormEvent<HTMLInputElement>, option: IChoiceGroupOption) => {
-     vTStatus = (vTStatus === 'enabled') ? 'disabled' : 'enabled';
      // tslint:disable-next-line:no-console
      console.dir(option);
    };
@@ -402,8 +395,8 @@
    },              [deviceId]);
 
    const handleClick = () => {
-    twin.properties.desired.vTDevice.enableVerifiedTelemetry = (vTStatus === 'enabled' ? true : false);
-    DevicesService.updateDeviceTwin(twin);
+     twin.properties.desired.vTDevice.enableVerifiedTelemetry = (twin.properties.desired.vTDevice.enableVerifiedTelemetry === true ? false : true);
+     DevicesService.updateDeviceTwin(twin);
    };
 
    const renderVTTabDisplay = () => {
