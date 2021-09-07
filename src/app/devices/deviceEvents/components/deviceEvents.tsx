@@ -251,11 +251,7 @@
              return events;
          }
          const filteredEvents = componentName ? events.filter(result => filterMessage(result)) : events;
-         // = componentName ? events.filter(result => filterMessage(result)) : events;
-         // tslint:disable-next-line:no-console
-         console.log(componentName);
-         // tslint:disable-next-line:no-console
-         // console.log(filteredEvents);
+
          return (
              <>
                  {
@@ -556,48 +552,30 @@
         // tslint:disable-next-line:no-any
          let sensorEvents = renderRawEvents() as any;
          sensorEvents = Object.entries(sensorEvents);
-         sensorEvents = sensorEvents.slice(Math.max(0, 7)); // tslint:disable-line:no-magic-numbers
-         let queueTimes = [] as any;  // tslint:disable-line:no-any
-         let measurements = [] as any;  // tslint:disable-line:no-any
+
+         if (sensorEvents.length >= 7) { // tslint:disable-line:no-magic-numbers
+            sensorEvents = sensorEvents.slice(0, 7); // tslint:disable-line:no-magic-numbers
+         }
+
+         sensorEvents.reverse();
+
+         const queueTimes = [] as any;  // tslint:disable-line:no-any
+         const measurements = [] as any;  // tslint:disable-line:no-any
          const pointBackgroundColors = [] as any; // tslint:disable-line:no-any
 
-         if (sensorEvents.length >= 1) { // at least one sensor event
+         let i = 0;
 
-            if (sensorEvents.length === 7) { // tslint:disable-line:no-magic-numbers
-                queueTimes.push(getTime(sensorEvents[sensorEvents.length - 1][1].enqueuedTime));
-                queueTimes.shift();
-                measurements.push(sensorEvents[sensorEvents.length - 1][1].body.soilMoistureExternal1);
-                measurements.shift();
-
-                if (sensorEvents[sensorEvents.length - 1][1].properties[componentName] === 'true') {
-                    pointBackgroundColors.push('chartreuse');
-                    pointBackgroundColors.shift();
-                }
-
-                if (sensorEvents[sensorEvents.length - 1][1].properties[componentName] === 'false') {
-                    pointBackgroundColors.push('darkorange');
-                    pointBackgroundColors.shift();
-                }
+         while (i < 7 && i < sensorEvents.length) { // tslint:disable-line:no-magic-numbers
+            queueTimes.push(getTime(sensorEvents[i][1].enqueuedTime));
+            measurements.push(sensorEvents[i][1].body.soilMoistureExternal1); // change this to work with any sensor name!
+            if (sensorEvents[i][1].properties[componentName] === 'true') {
+                pointBackgroundColors.push('chartreuse');
             }
 
-            else {
-                let i = 0;
-                while (i < 7 && i < sensorEvents.length) { // tslint:disable-line:no-magic-numbers
-                    queueTimes.push(getTime(sensorEvents[i][1].enqueuedTime));
-                    measurements.push(sensorEvents[i][1].body.soilMoistureExternal1);
-                    if (sensorEvents[i][1].properties[componentName] === 'true') {
-                        pointBackgroundColors.push('chartreuse');
-                    }
-
-                    if (sensorEvents[i][1].properties[componentName] === 'false') {
-                        pointBackgroundColors.push('darkorange');
-                    }
-                    i++;
-                }
+            if (sensorEvents[i][1].properties[componentName] === 'false') {
+                pointBackgroundColors.push('darkorange');
             }
-            queueTimes = queueTimes.reverse();
-            measurements = measurements.reverse();
-            pointBackgroundColors.reverse();
+            i++;
          }
 
          labelData.labels = queueTimes;
